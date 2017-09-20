@@ -1,0 +1,12 @@
+{
+  "name": "headless-crawler",
+  "version": "0.1.1",
+  "description": "A web crawler based on puppeteer.",
+  "main": "index.js",
+  "repository": "github:GoogleChrome/puppeteer",
+  "author": "billjeff",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "puppeteer": "^0.10.2"
+  }
+}
