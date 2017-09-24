@@ -7,3 +7,5 @@
   * Save the structured data into DB
   * UI to modify the extracton template
 
+# NOTE
+  * puppeteer does not support XPath.
