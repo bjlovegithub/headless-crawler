@@ -3,11 +3,13 @@
   "version": "0.1.1",
   "description": "A web crawler based on puppeteer.",
   "main": "index.js",
-  "repository": "github:GoogleChrome/puppeteer",
+  "repository": "git@github.com:bjlovegithub/headless-crawler.git",
   "author": "billjeff",
   "license": "Apache-2.0",
   "dependencies": {
     "amqplib": "^0.5.1",
-    "puppeteer": "^0.10.2"
+    "express": "^4.16.1",
+    "puppeteer-xpath": "^0.1.0",
+    "url": "^0.11.0"
   }
 }
