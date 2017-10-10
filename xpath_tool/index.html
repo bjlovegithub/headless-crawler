@@ -1,7 +1,14 @@
 <html>
   <head>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" type="text/javascript"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
+	  $(function() {
+		$("#tabs").tabs();
+	  });
+
+	  // submit url and xpath to verifier server
   	  function tload() {
 		var url = document.getElementById("url").value;
 		var xpath = document.getElementById("xpath").value;
@@ -14,17 +21,52 @@
 				 $("#content").text(data)
 			   });
 	  }
+
+	  // load extract conf from db.
+	  function load_conf() {
+		var sig = document.getElementById("conf_sig").value;
+		$.post("/load_conf",
+			   {
+				 sig: sig
+			   },
+			   function(data, status){
+				 $("#conf").text(data)
+			   });
+	  }
+
 	</script>
   </head>
   <body>
-	<div>
-	  URL: <input type="text" name="fname" id="url" size="100"> <br> <br>
-	  XPath: <input type="text" name="fname" id="xpath" size="100"> <button onclick="tload()">Submit</button>
-	</div>
-	<br>
-	<div>
-	  Result:
-	  <div id ="content"></div>
+	<div id="tabs">
+	  <ul>
+		<li><a href="#tabs-1">XPath Verifier</a></li>
+		<li><a href="#tabs-2">Extractor Verifier</a></li>
+	  </ul>
+	  
+	  <div id="tabs-1">
+		<div>
+		  URL: <input type="text" name="fname" id="url" size="100"> <br> <br>
+		  XPath: <input type="text" name="fname" id="xpath" size="100"> <button onclick="tload()">Submit</button>
+		</div>
+		<br>
+		<div>
+		  Result:
+		  <div id ="content"></div>
+		</div>
+	  </div>
+	  <div id="tabs-2">
+		<div>
+		  Host/Domain: <input type="text" name="fname" id="conf_sig" size="100"><button onclick="load_conf()">Load</button>
+		  <br> <br>
+		  Conf: <textarea id="conf" rows="200" cols="200"></textarea>
+		</div>
+		<br>
+		<div>
+		  Result:
+		  <div id ="content"></div>
+		</div>
+		
+	  </div>
 	</div>
   </body
 </html>

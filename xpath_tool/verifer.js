@@ -17,6 +17,7 @@ app.get('/index.html', function (req, res) {
 (async () => {
   var browser = await puppeteer.launch()
 
+  // handler to verify the xpath
   app.post('/verify', function (req, res) {
 	(async () => {
 	  const page = await browser.newPage();
@@ -26,7 +27,20 @@ app.get('/index.html', function (req, res) {
 
 	  res.send(val)
 	})()
+  })
+
+  // handler to load extractor conf from mangodb.
+  app.post('/load_conf', function (req, res) {
+	(async () => {
+	  const page = await browser.newPage();
+	  await page.goto(req.body.url);
+	  await page.waitForXpath(req.body.xpath)  
+	  val = await page.$XPath(req.body.xpath)
+
+	  res.send(val)
+	})()
   })		
+  
 
   const server = http.createServer(app);
   server.listen(8080, function listening() {

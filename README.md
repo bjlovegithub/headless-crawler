@@ -7,5 +7,9 @@
   * Save the structured data into DB
   * UI to modify the extracton template
 
+# Setup
+  * Install MongoDB
+  * Run MongoDB with: mongod --dbpath ./mongo_db_dir/
+
 # NOTE
   * puppeteer does not support XPath.
