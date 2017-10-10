@@ -11,16 +11,20 @@
 				 xpath: xpath
 			   },
 			   function(data, status){
-				 alert("Data: " + data + "\nStatus: " + status);
+				 $("#content").text(data)
 			   });
 	  }
 	</script>
   </head>
   <body>
 	<div>
-	  URL: <input type="text" name="fname" id="url">
-	  XPath: <input type="text" name="fname" id="xpath"> <button onclick="tload()">Submit</button>
+	  URL: <input type="text" name="fname" id="url" size="100"> <br> <br>
+	  XPath: <input type="text" name="fname" id="xpath" size="100"> <button onclick="tload()">Submit</button>
 	</div>
-	<div id ="content"></div>
+	<br>
+	<div>
+	  Result:
+	  <div id ="content"></div>
+	</div>
   </body
 </html>

@@ -20,7 +20,6 @@ app.get('/index.html', function (req, res) {
   app.post('/verify', function (req, res) {
 	(async () => {
 	  const page = await browser.newPage();
-	  console.log(req)
 	  await page.goto(req.body.url);
 	  await page.waitForXpath(req.body.xpath)  
 	  val = await page.$XPath(req.body.xpath)
