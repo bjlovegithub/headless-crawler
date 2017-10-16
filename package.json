@@ -11,6 +11,7 @@
     "express": "^4.16.1",
     "body-parser": "^1.18.2",
     "puppeteer-xpath": "^0.1.0",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "mongodb": "^2.2.31"
   }
 }
