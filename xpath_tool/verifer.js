@@ -70,6 +70,8 @@ const colName = 'xpath_conf';
 		const url = confObj['sample_url'];
 		const page = await browser.newPage();
 		await page.goto(url);
+
+		result = [];
 		
 		for (let k in confObj) {
 		  if (k === 'sample_url')  continue;
@@ -78,10 +80,9 @@ const colName = 'xpath_conf';
 		  await page.waitForXpath(xpath);
 		  const val = await page.$XPath(xpath);
 
-		  console.log(k);
-		  console.log(val);
+		  result.push([k, val]);
 		}
-		res.send("ok");
+		res.send(result);
 	  }
 	  catch (e) {
 		res.send(e);
