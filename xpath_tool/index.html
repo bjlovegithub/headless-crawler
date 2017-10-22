@@ -52,8 +52,14 @@
 			sig: sig,
 			conf: conf
 		  }, function(data, status){
-			$("#message").text("Saved Successfully!");
-			$("#dialog").dialog();
+			if (data["status"]) {
+			  $("#message").text("Saved Successfully!");
+			  $("#dialog").dialog();
+			}
+			else {
+			  $("#message").text(data["info"]);
+			  $("#dialog").dialog();
+			}
 		  });
 		}
 	  }

@@ -53,10 +53,16 @@ const colName = 'xpath_conf';
 	  MongoClient.connect(dbUrl, function(err, db) {
 		console.log("Connected successfully to server");
 		const col = db.collection(colName);
-		col.find({sig: req.body.conf_sig}).toArray(function(err, docs) {
-		  console.log(docs);
-		  db.close();		  
-		})
+		col.findOneAndUpdate(
+		  {sig: req.body.sig},
+		  {$set: {conf: req.body.conf}},
+		  {returnOriginal: false, upsert: true},
+		  function (err, r) {
+			if (err != null)
+			  res.send({"status": false, "info": err});
+			else
+			  res.send({"status": true});
+		  });
 	  })
 	})()
   })
