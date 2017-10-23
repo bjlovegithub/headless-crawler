@@ -32,9 +32,14 @@
 			   {
 				 sig: sig
 			   },
-			   function(data, status){
-				 $("#extract_result").text(data);
-				 alert(data);
+			   function(data, status) {
+				 if (status !== 'success') {
+				   $("#message").text(data);
+				   $("#dialog").dialog();
+				 }
+				 else {
+				   $("#conf").val(data);
+				 }
 			   });
 	  }
 

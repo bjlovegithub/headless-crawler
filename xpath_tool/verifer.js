@@ -39,9 +39,21 @@ const colName = 'xpath_conf';
 	  MongoClient.connect(dbUrl, function(err, db) {
 		console.log("Connected successfully to server");
 		const col = db.collection(colName);
-		col.find({sig: req.body.conf_sig}).toArray(function(err, docs) {
-		  console.log(docs);
-		  db.close();		  
+		col.find({sig: req.body.sig}).toArray(function(err, docs) {
+		  db.close();
+
+		  if (err != null) {
+			console.log(err);
+			res.status(500).send(err);
+		  }
+		  else {
+			if (docs.length != 1) {
+			  res.status(500).send("Multiple xpath conf for " + req.body.sig);
+			}
+			else {
+			  res.status(200).send(docs[0].conf);
+			}
+		  }
 		})
 	  })
 	})()
@@ -62,6 +74,8 @@ const colName = 'xpath_conf';
 			  res.send({"status": false, "info": err});
 			else
 			  res.send({"status": true});
+			
+			db.close();
 		  });
 	  })
 	})()
