@@ -1,26 +1,43 @@
-
-
-var puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-xpath');
 const amqp = require('amqplib/callback_api');
+const { URL } = require('url');
 
-(async () => {
-  const browser = await puppeteer.launch();
-  
-  amqp.connect('amqp://localhost', function(err, conn) {
-	conn.createChannel(function(err, ch) {
-	  var q = 'url';
+const xpath_conf = {};
 
-	  ch.assertQueue(q, {durable: true});
-	  console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q);
-	  ch.consume(q, async (msg) => {
-		console.log(" [x] Received %s", msg.content.toString());
+class Fetcher {
+  static getXpathConf(url, xpath_conf) {
+	try {
+	  const parser = new URL(url);
 
-		const page = await browser.newPage();
-		await page.goto(msg.content.toString());
+	  return xpath_conf[parser.hostname];
+	}
+	catch (e) {
+	  console.log(e);
 
-		
-		
-	  }, {noAck: true});
+	  return undefined;
+	}
+  }
+
+  async run() {
+	const browser = await puppeteer.launch();
+	
+	amqp.connect('amqp://localhost', function(err, conn) {
+	  conn.createChannel(function(err, ch) {
+		var q = 'url';
+		ch.consume(q, async (msg) => {
+		  console.log("Received %s", msg.content.toString());
+
+		  
+
+		  const page = await browser.newPage();
+		  await page.goto(msg.content.toString());
+
+		  
+		  
+		}, {noAck: true});
+	  });
 	});
-  });
-})();
+  }
+}
+
+module.exports = Fetcher;
