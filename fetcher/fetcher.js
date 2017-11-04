@@ -1,19 +1,48 @@
 const puppeteer = require('puppeteer-xpath');
 const amqp = require('amqplib/callback_api');
 const { URL } = require('url');
+const MongoClient = require('mongodb').MongoClient;
+
+const dbUrl = 'mongodb://localhost:27017/headless_crawler';
+const colName = 'xpath_conf';
+
+const TTL = 600000;
 
 const xpath_conf = {};
 
 class Fetcher {
-  static getXpathConf(url, xpath_conf) {
+  static async getXpathConf(url, xpath_conf) {
 	try {
 	  const parser = new URL(url);
 
-	  return xpath_conf[parser.hostname];
+	  if (xpath_conf[parser.hostname] === undefined ||
+		  xpath_conf[parser.hostname].last_update - new Date().getTime() > TTL) {
+		// query mongodb to get the latest xpath conf
+		const db = await MongoClient.connect(dbUrl);
+		const col = db.collection(colName);
+		const docs = await col.find({sig: parser.hostname}).toArray();
+		console.log("len: " + docs);
+		if (docs.length > 1) {
+		  console.log("Multiple xpath conf for " + parser.hostname);
+		  return undefined;
+		}
+		else if (docs.length == 0) {
+		  console.log("No xpath conf for " + parser.hostname);
+		  return undefined;
+		}
+		else {
+		  xpath_conf[parser.hostname] = {"conf": docs[0].conf, "last_updated": new Date().getTime()}
+		  return docs[0].conf;
+		}
+		db.close();
+	  }
+	  else {
+		// already have a conf in the memory
+		return xpath_conf[parser.hostname]["conf"];
+	  }
 	}
 	catch (e) {
 	  console.log(e);
-
 	  return undefined;
 	}
   }
@@ -25,15 +54,33 @@ class Fetcher {
 	  conn.createChannel(function(err, ch) {
 		var q = 'url';
 		ch.consume(q, async (msg) => {
-		  console.log("Received %s", msg.content.toString());
+		  const url = msg.content.toString();
+		  console.log("Received %s", url);
 
-		  
+		  try {
+			const host = new URL(url).hostname;
+			getXpathConf(host, xpath_conf).then(function (conf) {
+			  if (conf === undefined) {
+				console.log("No conf for: " + host);
+				// TODO - Send a metric
+			  }
+			  else {
+				const page = await browser.newPage();
+				await page.goto(url);
 
-		  const page = await browser.newPage();
-		  await page.goto(msg.content.toString());
-
-		  
-		  
+				const result = {};
+				// extract all fields configured in conf
+				conf.forEach(function (name, conf, map) {
+				  await page.waitForXpath(conf);
+				  const content = await page.$XPath(conf);
+				  result[name] = content;
+				});
+			  }
+			});
+		  }
+		  catch (e) {
+			console.log(e);
+		  }
 		}, {noAck: true});
 	  });
 	});
