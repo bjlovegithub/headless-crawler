@@ -21,7 +21,6 @@ class Fetcher {
 		const db = await MongoClient.connect(dbUrl);
 		const col = db.collection(colName);
 		const docs = await col.find({sig: parser.hostname}).toArray();
-		console.log("len: " + docs);
 		if (docs.length > 1) {
 		  console.log("Multiple xpath conf for " + parser.hostname);
 		  return undefined;
@@ -47,8 +46,8 @@ class Fetcher {
 	}
   }
 
-  async run() {
-	const browser = await puppeteer.launch();
+  async process() {
+	const browser = await puppeteer.launch();	
 	
 	amqp.connect('amqp://localhost', function(err, conn) {
 	  conn.createChannel(function(err, ch) {
@@ -57,30 +56,30 @@ class Fetcher {
 		  const url = msg.content.toString();
 		  console.log("Received %s", url);
 
-		  try {
-			const host = new URL(url).hostname;
-			getXpathConf(host, xpath_conf).then(function (conf) {
-			  if (conf === undefined) {
-				console.log("No conf for: " + host);
-				// TODO - Send a metric
-			  }
-			  else {
-				const page = await browser.newPage();
-				await page.goto(url);
+		  Fetcher.getXpathConf(url, xpath_conf).then(async (conf) => {
+			if (conf === undefined) {
+			  console.log("No conf for: " + host);
+			  // TODO - Send a metric
+			}
+			else {
+			  const page = await browser.newPage();
+			  await page.goto(url);
 
-				const result = {};
-				// extract all fields configured in conf
-				conf.forEach(function (name, conf, map) {
-				  await page.waitForXpath(conf);
-				  const content = await page.$XPath(conf);
-				  result[name] = content;
-				});
+			  const result = {};
+			  // extract all fields configured in conf
+			  const confMap = JSON.parse(conf);
+			  for (const name in confMap) {
+				if (confMap.hasOwnProperty(name) && name !== "sample_url") {
+				  await page.waitForXpath(confMap[name]);
+				  const content = await page.$XPath(confMap[name]);
+				  result[name] = content;  
+				}
 			  }
-			});
-		  }
-		  catch (e) {
-			console.log(e);
-		  }
+			  console.log(result);
+			}
+		  }).catch((err) => {
+			console.log(err);
+		  });
 		}, {noAck: true});
 	  });
 	});
