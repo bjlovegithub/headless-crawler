@@ -76,6 +76,7 @@ class Fetcher {
 				}
 			  }
 			  console.log(result);
+			  ch.sendToQueue("extracted", Buffer.from(JSON.stringify(result)));
 			}
 		  }).catch((err) => {
 			console.log(err);
