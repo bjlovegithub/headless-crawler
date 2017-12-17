@@ -3,7 +3,10 @@ const amqp = require('amqplib/callback_api');
 const { URL } = require('url');
 const MongoClient = require('mongodb').MongoClient;
 
-const dbUrl = 'mongodb://localhost:27017/headless_crawler';
+const mongoDB = process.env.MONGO_DB
+const rabbitmq = process.env.RABBIT_MQ
+
+const dbUrl = 'mongodb://' + mongoDB + '/headless_crawler';
 const colName = 'xpath_conf';
 
 const TTL = 600000;
@@ -49,7 +52,7 @@ class Fetcher {
   async process() {
 	const browser = await puppeteer.launch();	
 	
-	amqp.connect('amqp://localhost', function(err, conn) {
+	amqp.connect('amqp://' + rabbitmq, function(err, conn) {
 	  conn.createChannel(function(err, ch) {
 		var q = 'url';
 		ch.consume(q, async (msg) => {

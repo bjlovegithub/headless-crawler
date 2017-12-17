@@ -7,6 +7,11 @@
   * Save the structured data into DB
   * UI to modify the extracton template
 
+# Fetcher
+## Export Env Variables
+export MONGO_DB=localhost:27017
+export RABBIT_MQ=localhost
+
 # Setup
   * Install MongoDB
   * Run MongoDB with: mongod --dbpath ./mongo_db_dir/
