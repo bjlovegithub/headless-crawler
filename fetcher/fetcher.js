@@ -50,7 +50,7 @@ class Fetcher {
   }
 
   async process() {
-	const browser = await puppeteer.launch();	
+	const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 	
 	amqp.connect('amqp://' + rabbitmq, function(err, conn) {
 	  conn.createChannel(function(err, ch) {
@@ -80,6 +80,8 @@ class Fetcher {
 			  }
 			  console.log(result);
 			  ch.sendToQueue("extracted", Buffer.from(JSON.stringify(result)));
+
+			  await page.close();
 			}
 		  }).catch((err) => {
 			console.log(err);
