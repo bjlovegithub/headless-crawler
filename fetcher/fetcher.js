@@ -4,7 +4,9 @@ const { URL } = require('url');
 const MongoClient = require('mongodb').MongoClient;
 
 const mongoDB = process.env.MONGO_DB
-const rabbitmq = process.env.RABBIT_MQ
+const rabbitmq = process.env.RABBITMQ_HOST
+const rabbitmqUser = process.env.RABBITMQ_USER
+const rabbitmqPasswd = process.env.RABBITMQ_PASSWD
 
 const dbUrl = 'mongodb://' + mongoDB + '/headless_crawler';
 const colName = 'xpath_conf';
@@ -52,42 +54,47 @@ class Fetcher {
   async process() {
 	const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 	
-	amqp.connect('amqp://' + rabbitmq, function(err, conn) {
-	  conn.createChannel(function(err, ch) {
-		var q = 'url';
-		ch.consume(q, async (msg) => {
-		  const url = msg.content.toString();
-		  console.log("Received %s", url);
+	amqp.connect('amqp://' + rabbitmqUser + ':' + rabbitmqPasswd + '@' + rabbitmq, function(err, conn) {
+	  if (err !== null) {
+		console.log(err);
+	  }
+	  else {
+		conn.createChannel(function(err, ch) {
+		  var q = 'url';
+		  ch.consume(q, async (msg) => {
+			const url = msg.content.toString();
+			console.log("Received %s", url);
 
-		  Fetcher.getXpathConf(url, xpath_conf).then(async (conf) => {
-			if (conf === undefined) {
-			  console.log("No conf for: " + host);
-			  // TODO - Send a metric
-			}
-			else {
-			  const page = await browser.newPage();
-			  await page.goto(url);
-
-			  const result = {};
-			  // extract all fields configured in conf
-			  const confMap = JSON.parse(conf);
-			  for (const name in confMap) {
-				if (confMap.hasOwnProperty(name) && name !== "sample_url") {
-				  await page.waitForXpath(confMap[name]);
-				  const content = await page.$XPath(confMap[name]);
-				  result[name] = content;  
-				}
+			Fetcher.getXpathConf(url, xpath_conf).then(async (conf) => {
+			  if (conf === undefined) {
+				console.log("No conf for: " + host);
+				// TODO - Send a metric
 			  }
-			  console.log(result);
-			  ch.sendToQueue("extracted", Buffer.from(JSON.stringify(result)));
+			  else {
+				const page = await browser.newPage();
+				await page.goto(url);
 
-			  await page.close();
-			}
-		  }).catch((err) => {
-			console.log(err);
-		  });
-		}, {noAck: true});
-	  });
+				const result = {};
+				// extract all fields configured in conf
+				const confMap = JSON.parse(conf);
+				for (const name in confMap) {
+				  if (confMap.hasOwnProperty(name) && name !== "sample_url") {
+					await page.waitForXpath(confMap[name]);
+					const content = await page.$XPath(confMap[name]);
+					result[name] = content;  
+				  }
+				}
+				console.log(result);
+				ch.sendToQueue("extracted", Buffer.from(JSON.stringify(result)));
+
+				await page.close();
+			  }
+			}).catch((err) => {
+			  console.log(err);
+			});
+		  }, {noAck: true});
+		});
+	  }
 	});
   }
 }
