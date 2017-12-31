@@ -9,13 +9,15 @@ app.use(express.static(__dirname));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
-})); 
+}));
+
+const mongoDB = process.env.MONGO_DB
 
 app.get('/index.html', function (req, res) {
   res.sendFile('index.html', options);
 });
 
-const dbUrl = 'mongodb://localhost:27017/headless_crawler';
+const dbUrl = 'mongodb://' + mongoDB + '/headless_crawler';
 const colName = 'xpath_conf';
 
 (async () => {

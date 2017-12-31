@@ -85,7 +85,7 @@ class Fetcher {
 				  }
 				}
 				console.log(result);
-				ch.sendToQueue("extracted", Buffer.from(JSON.stringify(result)));
+				ch.sendToQueue("extracted", Buffer.from(JSON.stringify({"_id": url, "result": result})));
 
 				await page.close();
 			  }
