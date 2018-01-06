@@ -16,6 +16,11 @@ export RABBITMQ_PASSWD=
 ## Build docker image
 docker build -t headless-crawler/fetcher -f fetcher/Dockerfile .
 docker run -d -t -i -e MONGO_DB='' -e RABBITMQ_HOST='' -e RABBITMQ_USER='' -e RABBITMQ_PASSWD='' headless-crawler/fetcher
+		
+docker build -t headless-crawler/writer -f writer/Dockerfile .
+docker run -d -t -i -e MONGO_DB='' -e RABBITMQ_HOST='' -e RABBITMQ_USER='' -e RABBITMQ_PASSWD='' headless-crawler/writer
+
+docker run -d -t -i -e MONGO_DB='192.168.0.3:27017' -p 8080:8080 headless-crawler/xpath_tool
 
 # Setup
   * Install MongoDB
