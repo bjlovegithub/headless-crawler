@@ -25,3 +25,10 @@ docker run -d -t -i -e MONGO_DB='192.168.0.3:27017' -p 8080:8080 headless-crawle
 # Setup
   * Install MongoDB
   * Run MongoDB with: mongod --dbpath ./mongo_db_dir/
+
+
+# Run in minikube
+## Install minikube by following the steps at: https://kubernetes.io/docs/tasks/tools/install-minikube/
+## Execute: minikube start
+## Let minikube use local docker registry: eval $(minikube docker-env)
+## Execute: kubectl create -f k18s/service.yaml
