@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: fetcher
+  labels:
+    run: fetcher
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: fetcher
+    spec:
+      containers:
+      - name: fetcher
+        image: headless-crawler/fetcher
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MONGO_DB
+          value: ""
+        - name: RABBITMQ_HOST
+          value: ""
+        - name: RABBITMQ_USER
+          value: ""
+        - name: RABBITMQ_PASSWD
+          value: ""
