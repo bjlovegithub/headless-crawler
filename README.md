@@ -28,10 +28,14 @@ docker run -d -t -i -e MONGO_DB='192.168.0.3:27017' -p 8080:8080 headless-crawle
 
 
 # Run in minikube
-## Install minikube by following the steps at: https://kubernetes.io/docs/tasks/tools/install-minikube/
-## Execute: minikube start
-## Let minikube use local docker registry: eval $(minikube docker-env)
-## Execute: kubectl create -f k18s/service.yaml
-## Expose service:
-  * kubectl expose deployment/account-service --type="NodePort" --port 8080
+* Install minikube by following the steps at: https://kubernetes.io/docs/tasks/tools/install-minikube/
+
+* Execute: minikube start
+
+* Let minikube use local docker registry: eval $(minikube docker-env)
+
+* Execute: kubectl create -f k18s/service.yaml
+
+* Expose service:
+    * kubectl expose deployment/account-service --type="NodePort" --port 8080
   * kubectl expose deployment/account-service --type=LoadBalancer --name=accoun-service2			
